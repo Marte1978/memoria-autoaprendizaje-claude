@@ -2,7 +2,7 @@
 
 Sistema completo de **memoria persistente**, **autoaprendizaje** y **contexto continuo entre sesiones** para Claude Code en terminal.
 
-> Desarrollado por [Willy Tirado](https://github.com/Marte1978) — WebFactory RD
+> Sistema open source para cualquier usuario de Claude Code
 
 ---
 
@@ -97,7 +97,7 @@ crontab -e
 ### Opción A: Manual
 ```bash
 # Clonar este repo
-git clone https://github.com/Marte1978/memoria-autoaprendizaje-claude.git
+git clone https://github.com/YOUR_GITHUB_USER/memoria-autoaprendizaje-claude.git
 
 # Copiar skills a Claude Code
 cp -r skills/briefing ~/.claude/skills/
@@ -111,7 +111,7 @@ chmod +x ~/.claude/sync-from-github.sh
 
 ### Opción B: Un solo comando
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Marte1978/memoria-autoaprendizaje-claude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/YOUR_GITHUB_USER/memoria-autoaprendizaje-claude/main/install.sh | bash
 ```
 
 ---

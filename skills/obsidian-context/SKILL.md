@@ -1,6 +1,6 @@
 # Skill: /obsidian-context
 
-Eres el **Sistema de Contexto Continuo de WebFactory**, conectado al vault Obsidian de Willy Tirado via GitHub (`Marte1978/claude-config`).
+Eres el **Sistema de Contexto Continuo**, conectado al vault Obsidian via GitHub (`YOUR_GITHUB_USER/YOUR_CONFIG_REPO`).
 
 Tu función es **leer el estado actual del vault, procesar los aprendizajes nuevos y actualizar la memoria del VPS** para que cada sesión de Claude Code tenga el contexto más completo posible.
 
@@ -32,13 +32,13 @@ Esto hace PULL de todas las memories y skills del vault Obsidian al VPS.
 ## PASO 2 — Leer estado de proyectos activos
 
 Proyectos activos en WebFactory:
-- **Marketing Willy** — marketing.webfactoryrd.com — dashboard IA con 6 skills, chat Claude vía VPS
-- **Quantyx Capital AI** — hyip.webfactoryrd.com — pendiente: pg_cron, wallets reales, RESEND real
-- **Ciudad del Lago Blog** — workflow n8n activo, publica 3x/día, 40 topics en cola
-- **MetaClaw** — proxy IA activo, 13 agentes conectados
-- **Blotato automation** — pendiente: instalar nodo + conectar 18 cuentas
-- **Jose Lambertus RE/MAX** — completado, todo deployado
-- **WebFactory Dashboard** — Next.js, pendiente: auth, multi-tenant
+- **YOUR_PROJECT_1 — your-domain.com — descripción del proyecto
+- **YOUR_PROJECT_2 — your-domain.com — pendientes del proyecto
+- **YOUR_PROJECT_3 — workflow activo
+- **YOUR_TOOL_1 — descripción
+- **YOUR_TOOL_2 — pendientes
+- **YOUR_PROJECT_4 — completado
+- **YOUR_DASHBOARD — pendientes
 
 ---
 
@@ -102,20 +102,20 @@ Listo para trabajar con contexto completo.
 
 ### Quién es Willy
 - Fundador WebFactoryRD — agencia digital República Dominicana
-- GitHub: Marte1978 | GitLab: willymartetirado | Vercel: marte1978
+- GitHub: YOUR_GITHUB_USER
 - Stack: Next.js + Supabase + n8n + Vercel + GitLab Pages
 - Mercado: negocios pequeños RD (WhatsApp es canal clave)
 - Visión: sitio + agente IA deployado en menos de 10 minutos
 
 ### Infraestructura VPS
-- VPS: 178.18.247.193
-- n8n: https://automatizacion-n8n.lnr2f0.easypanel.host
-- Evolution API: https://automatizacion-evolution-api.lnr2f0.easypanel.host
-- MetaClaw: http://127.0.0.1:30030
-- Supabase: fmjvktaaxsdhukbkefnw.supabase.co
+- VPS: YOUR_VPS_IP
+- n8n: YOUR_N8N_URL
+- Evolution API: YOUR_EVOLUTION_API_URL
+- YOUR_TOOL: YOUR_INTERNAL_URL
+- Supabase: YOUR_SUPABASE_REF.supabase.co
 
-### Clientes activos (13 agentes n8n via MetaClaw)
-Sabriny Novas, Yacot, Ciudad del Lago, El Sazón de Lucía, Adenium, Fravas SRL, Richael, JR Solucion Solar, LEVI, Refrielectrico Ney, AYJ Solutions, Jose Lambertus, Inmobiliaria Rosire
+### Clientes activos (lista de clientes via tu herramienta de agentes)
+Cliente 1, Cliente 2, Cliente 3, ... (personalizar con tus clientes)
 
 ### Pipeline WebFactory (9 fases)
 1. `/research` + `/site-audit-rubro` → investigación
@@ -125,5 +125,5 @@ Sabriny Novas, Yacot, Ciudad del Lago, El Sazón de Lucía, Adenium, Fravas SRL,
 5. `/deploy-static` → GitLab Pages
 6. `/cloudflare-dns` → subdominio
 7. `/crm-process` → n8n agente WhatsApp
-8. MetaClaw `inherit_skills.py` → skill personalizada
+8. YOUR_TOOL → skill personalizada
 9. `/qa-supervisor` → verificación final

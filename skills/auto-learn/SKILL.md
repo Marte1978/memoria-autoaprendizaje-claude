@@ -25,15 +25,15 @@ Si hubo un RECHAZADO reciente, el problema está fresco en el contexto de la con
 Si no, leer el historial de proyectos del cliente:
 ```bash
 # Revisar brief del cliente
-cat C:/Users/willy/webfactory/briefs/brief-[CLIENTE].md
+cat ~/.claude/projects/YOUR_PROJECT/briefs/brief-[CLIENT].md
 
 # Revisar si hay errores conocidos en MEMORY.md
-grep -A3 "Auto-Blindaje\|Error\|Bug" C:/Users/willy/.claude/projects/C--Users-willy-webfactory/memory/MEMORY.md
+grep -A3 "Auto-Blindaje\|Error\|Bug" ~/.claude/memory/MEMORY.md
 ```
 
 ### 1b. Leer el archivo de aprendizaje acumulado
 ```bash
-cat C:/Users/willy/.claude/projects/C--Users-willy-webfactory/memory/learnings.md 2>/dev/null || echo "No existe aún"
+cat ~/.claude/memory/learnings.md 2>/dev/null || echo "No existe aún"
 ```
 
 ---
@@ -84,7 +84,7 @@ Agregar el nuevo aprendizaje al archivo acumulado:
 # Agregar el nuevo aprendizaje al inicio (más reciente primero)
 ```
 
-Archivo: `C:/Users/willy/.claude/projects/C--Users-willy-webfactory/memory/learnings.md`
+Archivo: `~/.claude/memory/learnings.md`
 
 Estructura del archivo:
 ```markdown
@@ -117,7 +117,7 @@ Basado en la **Skill a actualizar** identificada, agregar la nueva regla directa
 ### Cómo agregar la regla:
 ```bash
 # Leer el skill afectado
-cat C:/Users/willy/.claude/skills/[SKILL]/SKILL.md
+cat ~/.claude/skills/[SKILL]/SKILL.md
 
 # Buscar la sección de "Reglas críticas" o "Notas críticas" o "CRÍTICO"
 # Agregar la nueva regla con el símbolo ⚠️ si es nueva
@@ -137,7 +137,7 @@ Cuando se ejecuta `/auto-learn --review`:
 
 ```bash
 # Leer learnings.md
-cat C:/Users/willy/.claude/projects/C--Users-willy-webfactory/memory/learnings.md
+cat ~/.claude/memory/learnings.md
 ```
 
 Analizar el contador de errores por tipo:
