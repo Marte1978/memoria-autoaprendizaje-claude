@@ -1,129 +1,173 @@
 # Skill: /obsidian-context
 
-Eres el **Sistema de Contexto Continuo**, conectado al vault Obsidian via GitHub (`YOUR_GITHUB_USER/YOUR_CONFIG_REPO`).
+Eres el **Sistema de Contexto Continuo**, conectado al vault Obsidian local del usuario.
 
-Tu función es **leer el estado actual del vault, procesar los aprendizajes nuevos y actualizar la memoria del VPS** para que cada sesión de Claude Code tenga el contexto más completo posible.
+Tu funcion es **leer el estado actual del vault y entregar contexto fresco** para que
+la sesion tenga informacion actualizada de proyectos, errores y aprendizajes.
 
 ## Cuándo ejecutar
-- Al inicio de cualquier sesión importante
-- Antes de comenzar un proyecto nuevo
-- Cuando Willy diga "actualízate", "lee obsidian", "sincroniza contexto"
-- Automáticamente cada día via cron (SessionStart hook)
+- Al inicio de sesiones importantes o cambio de proyecto
+- Cuando el usuario diga "actualízate", "lee obsidian", "sincroniza contexto", "que tengo pendiente"
+- Antes de comenzar un proyecto nuevo o retomar uno pausado
+- El SessionStart hook lo hace automaticamente al arrancar Claude Code (version compacta)
 
 ## ARGUMENTS
-- `/obsidian-context` — sync completo: leer vault + actualizar memories + aplicar contexto
-- `/obsidian-context --sessions` — procesar solo sesiones recientes, extraer aprendizajes
-- `/obsidian-context --projects` — actualizar estado de proyectos activos
-- `/obsidian-context --kb` — revisar KB-Master por errores nuevos a interiorizar
-- `/obsidian-context --push` — subir memories nuevas del VPS al vault Obsidian
+- `/obsidian-context` — sync completo: pull vault + proyectos + KB + sesiones recientes
+- `/obsidian-context --projects` — solo estado de proyectos activos
+- `/obsidian-context --kb` — revisar KB-Master (errores criticos y reglas)
+- `/obsidian-context --sessions` — sesiones recientes, extraer pendientes
+- `/obsidian-context --push` — verificar que vault esta actualizado en GitHub
 
 ---
 
-## PASO 1 — Sincronizar con GitHub
+## PASO 0 — Git pull del vault (siempre primero)
 
 ```bash
-/root/.claude/sync-from-github.sh
+# Windows (PowerShell)
+cd "$env:USERPROFILE\Documents\claude-brain" && git pull --rebase --quiet
+
+# Linux/Mac (VPS)
+cd ~/.claude/memory && git pull --rebase --quiet
 ```
 
-Esto hace PULL de todas las memories y skills del vault Obsidian al VPS.
+Si hay conflictos: `git stash && git pull --rebase && git stash pop`
 
 ---
 
-## PASO 2 — Leer estado de proyectos activos
+## PASO 1 — Leer proyectos activos
 
-Proyectos activos en WebFactory:
-- **YOUR_PROJECT_1 — your-domain.com — descripción del proyecto
-- **YOUR_PROJECT_2 — your-domain.com — pendientes del proyecto
-- **YOUR_PROJECT_3 — workflow activo
-- **YOUR_TOOL_1 — descripción
-- **YOUR_TOOL_2 — pendientes
-- **YOUR_PROJECT_4 — completado
-- **YOUR_DASHBOARD — pendientes
+Leer los archivos de proyectos en el vault:
+```
+[VAULT_PATH]/00-dashboard/Dashboard.md
+[VAULT_PATH]/02-projects/
+```
+
+Listar proyectos activos con estado:
+- Leer cada `.md` en `02-projects/` — extraer `status`, pendientes, fecha
+- Presentar tabla: Proyecto | Estado | Pendiente critico
+
+**Solo con `--projects`:** terminar aqui y presentar tabla.
 
 ---
 
-## PASO 3 — Leer memories relevantes
+## PASO 2 — Leer KB-Master (errores criticos)
+
+```
+[CLAUDE_MEMORY_PATH]/kb-master.md
+```
+
+Extraer:
+1. Tabla CONTADOR — errores con Ocurrencias >= 2 (sistemicos)
+2. Entradas con Prioridad: CRITICO
+3. Errores de la ultima semana
+
+**Solo con `--kb`:** terminar aqui y presentar resumen de KB.
+
+---
+
+## PASO 3 — Leer sesiones recientes
+
+Archivos en `[VAULT_PATH]/06-sessions/` — ultimos 3 dias:
+
+1. Leer cada session `.md` ordenada por fecha desc
+2. Extraer seccion "Siguiente sesion" — pendientes para hoy
+3. Extraer seccion "Errores resueltos" — confirmar si ya estan en KB-Master
+4. Si hay errores NO documentados en KB: marcarlos para `/auto-learn`
+
+**Solo con `--sessions`:** terminar aqui y presentar pendientes.
+
+---
+
+## PASO 4 — Leer memories relevantes (sync completo)
+
+Solo en modo completo (`/obsidian-context` sin flags):
+
+```
+[CLAUDE_MEMORY_PATH]/MEMORY.md
+[CLAUDE_MEMORY_PATH]/webfactory-estado-actual.md   # o el archivo de estado de tu proyecto
+```
+
+Resumir cambios vs lo que ya esta cargado en el contexto.
+
+---
+
+## PASO 5 — Verificar push a GitHub (solo `--push`)
 
 ```bash
-cat ~/.claude/memory/MEMORY.md
-cat ~/.claude/memory/kb-master.md
-cat ~/.claude/memory/webfactory-estado-actual.md
-cat ~/.claude/memory/reference-credenciales.md
+cd [VAULT_PATH]
+git status
+git log --oneline -5
+```
+
+Si hay cambios sin pushear: informar al usuario que archivos estan pendientes.
+Si todo esta sincronizado: confirmar fecha del ultimo commit.
+
+---
+
+## PASO 6 — Reporte al usuario
+
+```
+OBSIDIAN SYNC — [fecha hora]
+----------------------------
+Vault: [VAULT_PATH]
+Ultimo pull: hace X minutos
+
+PROYECTOS ACTIVOS: N proyectos
+- [nombre]: [estado] — Pendiente: [pendiente critico]
+
+KB-MASTER: N errores documentados
+- CRITICOS activos: N
+
+SESIONES RECIENTES:
+- [fecha]: [proyecto] — Pendiente: [pendiente]
+
+ERRORES SIN DOCUMENTAR: N (ejecutar /auto-learn para registrarlos)
+
+Contexto listo. Proyecto actual: [cwd]
 ```
 
 ---
 
-## PASO 4 — Detectar y documentar aprendizajes nuevos
+## Configuracion del vault (personalizar)
 
-Si en las sesiones recientes hay errores NO documentados en KB-Master:
+Al instalar esta skill, ajusta estas rutas en tu entorno:
 
-### Formato para agregar al KB-Master
-```bash
-cat >> ~/.claude/projects/-root/memory/03-knowledge-base/kb-master.md << 'EOF'
+| Variable | Windows | Linux/Mac |
+|----------|---------|-----------|
+| Vault Obsidian | `$env:USERPROFILE\Documents\claude-brain` | `~/obsidian/claude-brain` |
+| Claude memory | `~/.claude/projects/[PROJECT_HASH]/memory` | `~/.claude/projects/[PROJECT_HASH]/memory` |
+| Sessions | `[VAULT]/06-sessions/` | `[VAULT]/06-sessions/` |
+| Dashboard | `[VAULT]/00-dashboard/Dashboard.md` | `[VAULT]/00-dashboard/Dashboard.md` |
 
-### [CÓDIGO-NUEVO] — [Nombre del error]
-**Skill afectada**: [skill]
-**Síntoma**: [qué pasó]
-**Causa raíz**: [por qué]
-**Fix**: [cómo se resolvió]
-**Prevención**: [regla para no repetirlo]
-**Ocurrencias**: 1
-**Prioridad**: [CRÍTICO/ALTO/MEDIO/BAJO]
-EOF
+### Estructura de vault esperada
 ```
-
-### Push al vault Obsidian
-```bash
-/root/.claude/sync-from-github.sh --push
-```
-
----
-
-## PASO 5 — Confirmar estado al usuario
-
-Reportar:
-```
-✅ Contexto Obsidian cargado
-📚 [N] memories procesadas
-🔧 [N] reglas de feedback activas
-⚠️ [N] errores KB-Master interiorizados
-📁 [N] proyectos activos actualizados
-🆕 [N] aprendizajes nuevos detectados (si aplica)
-
-Proyectos con pendientes críticos:
-- [nombre]: [pendiente]
-
-Listo para trabajar con contexto completo.
+claude-brain/
+├── 00-dashboard/     # Dashboard.md con proyectos activos
+├── 02-projects/      # Un .md por proyecto activo
+├── 03-knowledge-base/ # KB-Master con errores documentados
+├── 04-feedback/      # Reglas y correcciones aprendidas
+├── 05-references/    # Recursos externos, MCPs, stack
+├── 06-sessions/      # Logs de sesion (auto-generados)
+└── templates/        # Plantillas para nuevas memorias
 ```
 
 ---
 
-## Contexto WebFactory RD (siempre activo)
+## Pipeline de auto-aprendizaje
 
-### Quién es Willy
-- Fundador WebFactoryRD — agencia digital República Dominicana
-- GitHub: YOUR_GITHUB_USER
-- Stack: Next.js + Supabase + n8n + Vercel + GitLab Pages
-- Mercado: negocios pequeños RD (WhatsApp es canal clave)
-- Visión: sitio + agente IA deployado en menos de 10 minutos
+```
+SessionStart hook → git pull vault → systemMessage con proyectos + pendientes
+      ↓
+Trabajo en sesion
+      ↓
+/auto-learn → documenta errores → actualiza KB-Master → Supabase sync
+      ↓
+Stop hook → git commit + push vault → Obsidian Git sync → GitHub
+```
 
-### Infraestructura VPS
-- VPS: YOUR_VPS_IP
-- n8n: YOUR_N8N_URL
-- Evolution API: YOUR_EVOLUTION_API_URL
-- YOUR_TOOL: YOUR_INTERNAL_URL
-- Supabase: YOUR_SUPABASE_REF.supabase.co
+## Integracion con otros skills
 
-### Clientes activos (lista de clientes via tu herramienta de agentes)
-Cliente 1, Cliente 2, Cliente 3, ... (personalizar con tus clientes)
-
-### Pipeline WebFactory (9 fases)
-1. `/research` + `/site-audit-rubro` → investigación
-2. `/design-system` → sistema visual
-3. `/new-client-site` → scaffold HTML
-4. `/fetch-images-v2` → imágenes reales
-5. `/deploy-static` → GitLab Pages
-6. `/cloudflare-dns` → subdominio
-7. `/crm-process` → n8n agente WhatsApp
-8. YOUR_TOOL → skill personalizada
-9. `/qa-supervisor` → verificación final
+- `/auto-learn` — documenta errores encontrados durante la sesion
+- `/qa-supervisor` — usa KB-Master para verificar calidad antes de deploy
+- `/obsidian-context --kb` — revisar errores conocidos antes de empezar tarea critica
+- `session-start.ps1` — version automatica y compacta que corre al iniciar Claude Code
